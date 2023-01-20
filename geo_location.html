@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<p>Checking Current Geo Coordinates.</p>
+
+<p id="demo"></p>
+
+<script>
+window.addEventListener("DOMContentLoaded", function(){getLocation()})
+
+
+
+function getLocation() {
+var x = document.getElementById("demo");
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else { 
+    x.innerHTML = "Geolocation is not supported by this browser.";
+  }
+}
+
+function showPosition(position) {
+var x = document.getElementById("demo");
+  x.innerHTML = "Latitude: " + position.coords.latitude + 
+  "<br>Longitude: " + position.coords.longitude;
+  postlocation(position.coords.latitude, position.coords.longitude)
+}
+
+function postlocation(lat,lon) {
+var dateobj = new Date();
+var B = dateobj.toISOString();
+
+var headers = new Headers({
+    'Authorization': `Basic ${btoa('elastic:xxxxxxxxxx')}`,
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',});
+
+fetch('https://elasticendoint/indexname/_doc', {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify({"@timestamp": B, "Name": "GeoDevice","location": { "lat" : lat ,"lon":lon}})
+})
+.then(response => response.json())
+.then(response => console.log(JSON.stringify(response)))
+
+}
+
+</script>
+
+</body>
+</html>
